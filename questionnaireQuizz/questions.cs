@@ -8,14 +8,22 @@ namespace questionnaireQuizz
     public partial class questions : Form
     {
         private string texteRecu;  // nom du thème
-
-        public questions(string contenu)
+        private int userId;
+        public questions(int idUtilisateur, string contenu)
         {
             InitializeComponent();
+
+            // 1) On stocke l’ID dans le champ privé
+            this.userId = idUtilisateur;
+
             this.texteRecu = contenu;
 
-            lbl_theme.Text = "Thème sélectionné : " + texteRecu;
-            ChargerQuestions(texteRecu);
+
+            // 3) On met à jour le label pour indiquer le thème sélectionné
+            lbl_theme.Text = "Thème sélectionné : " + this.texteRecu;
+
+            // 4) On charge les questions du thème
+            ChargerQuestions(this.texteRecu);
         }
 
 
@@ -61,9 +69,7 @@ namespace questionnaireQuizz
 
         private void btn_backTheme_Click(object sender, EventArgs e)
         {
-            Form1 f1 = new Form1();
-            f1.Show();
-            this.Hide();
+            this.Close();
         }
     }
 }

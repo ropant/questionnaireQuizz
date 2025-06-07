@@ -18,7 +18,8 @@ namespace questionnaireQuizz
         public AjoutQuestion()
         {
             InitializeComponent();
-           
+            this.Load += AjoutQuestion_Load;
+
         }
         private void AjoutQuestion_Load(object sender, EventArgs e)
         {
@@ -86,7 +87,6 @@ namespace questionnaireQuizz
                 if (conn.State != ConnectionState.Open)
                     conn.Open();
 
-                // Requête pour récupérer l'id et le nom de tous les questionnaires
                 string requete = "SELECT id_questionnaire, nom_questionnaire FROM questionnaire";
 
                 using (MySqlCommand cmd = new MySqlCommand(requete, conn))
@@ -95,16 +95,31 @@ namespace questionnaireQuizz
                     DataTable dt = new DataTable();
                     adapter.Fill(dt);
 
-                    // Associer le DataTable à la ComboBox
+                    // Vérifie qu'on a bien récupéré au moins une ligne
+                    if (dt.Rows.Count == 0)
+                    {
+                        MessageBox.Show("Aucun questionnaire disponible.");
+                        return;
+                    }
+
+                    // On lie le DataTable à la ComboBox
                     cB_questionnaire.DataSource = dt;
-                    cB_questionnaire.DisplayMember = "nom_questionnaire";   // Texte affiché
-                    cB_questionnaire.ValueMember = "id_questionnaire";      // Valeur associée
+                    cB_questionnaire.DisplayMember = "nom_questionnaire";   // ce qu'on affiche
+                    cB_questionnaire.ValueMember = "id_questionnaire";      // la valeur sous‐jacente
+                    cB_questionnaire.SelectedIndex = -1; // met la ComboBox sur « aucune sélection » par défaut
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erreur lors du chargement des questionnaires : " + ex.Message);
+                MessageBox.Show("Erreur lors du chargement des questionnaires :\n" + ex.Message,
+                                "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
             }
         }
+
     }
 }

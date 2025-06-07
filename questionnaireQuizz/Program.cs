@@ -1,5 +1,6 @@
 using MySql.Data.MySqlClient;
 using System;
+using System.Security.Cryptography;
 using System.Windows.Forms;
 
 namespace questionnaireQuizz
@@ -17,23 +18,28 @@ namespace questionnaireQuizz
             // Définissez ici votre chaîne de connexion
             string connectionString = "Server=localhost;Database=questionnaire;Uid=root;Pwd=;";
 
-            // Instancier la connexion
-            connection = new MySqlConnection(connectionString);
+           // string connectionOFF = "Server=104.40.137.99;Port = 22260;Database=bdd_antoine_ppe;Uid=developer;Pwd=cerfal1313;";
+           
+
+
+           connection = new MySqlConnection(connectionString);
+            //connection = new MySqlConnection(connectionOFF);
+
 
             try
             {
-                // Tentative d'ouverture
+                
                 connection.Open();
                 MessageBox.Show("Connexion à la base de données réussie !");
             }
             catch (Exception ex)
             {
-                // Si erreur, on l’affiche et on arrête l’application
+                
                 MessageBox.Show("Erreur de connexion : " + ex.Message);
                 return;  
             }
 
-            // Si la connexion est réussie, lancer le formulaire principal
+            
             Application.Run(new connexion());
 
             
