@@ -20,39 +20,141 @@ namespace questionnaireQuizz
             dataGridView_questions.Hide();
             this.BackColor = Color.FromArgb(245, 245, 250);
             userId = id;
+            //modifications
+            btn_getID.Hide();
+            txt_id.Hide();
+            txt_nom.Hide();
+            label1.Hide();
+            label2.Hide();
+            txt_nbrConnexion.Hide();
+            txt_derniereConnection.Hide();
+            afficherLesQuestionnairesToolStripMenuItem.Visible = false;
+            afficherLesQuestionsToolStripMenuItem.Visible = false;
+            btn_deconnecter.Hide();
+
+            // — Styliser le MenuStrip et ses items —
+            menuStrip1.BackColor = Color.White;
+            menuStrip1.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
+            foreach (ToolStripMenuItem item in menuStrip1.Items)
+            {
+                item.ForeColor = Color.FromArgb(50, 50, 50);
+                item.BackColor = Color.White;
+                item.Margin = new Padding(2, 0, 2, 0);
+                // Survol
+                item.MouseEnter += (s, e) => { item.BackColor = Color.FromArgb(230, 230, 230); };
+                item.MouseLeave += (s, e) => { item.BackColor = Color.White; };
+            }
+
+            // — Styliser les Buttons principaux —
+            foreach (var ctl in this.Controls)
+                if (ctl is Button btn)
+                {
+                    btn.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
+                    btn.FlatStyle = FlatStyle.Flat;
+                    btn.BackColor = Color.FromArgb(0, 120, 215);
+                    btn.ForeColor = Color.White;
+                    btn.FlatAppearance.BorderSize = 0;
+                    btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(0, 100, 180);
+                    btn.FlatAppearance.MouseDownBackColor = Color.FromArgb(0, 90, 170);
+                    btn.Size = new Size(200, 30);
+                }
+
+            // — Styliser les DataGridView —
+            Action<DataGridView> styleGrid = grid =>
+            {
+                grid.EnableHeadersVisualStyles = false;
+                grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(0, 120, 215);
+                grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+                grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+                grid.RowHeadersVisible = false;
+                grid.GridColor = Color.LightGray;
+                grid.BorderStyle = BorderStyle.None;
+                grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+                grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 250, 250);
+                grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(0, 120, 215);
+                grid.DefaultCellStyle.SelectionForeColor = Color.White;
+            };
+            styleGrid(dataGridView1);
+            styleGrid(dataGridView_questions);
+
 
         }
 
         private void btn_afficherThemes_Click(object sender, EventArgs e)
         {
+           // dataGridView_questions.Hide();
+
+
             dataGridView_questions.Hide();
+            ChargerThemesAvecNombreQuestionnaires();
 
-
-            string query = "SELECT nom AS 'Thèmes' FROM theme";
-
+        }
+        private void ChargerThemesAvecNombreQuestionnaires()
+        {
             try
             {
+                string sql = @"
+            SELECT  t.nom AS Theme, COUNT(q.id_questionnaire) AS NombreQuestionnaires
+            FROM theme t
+            LEFT JOIN questionnaire q ON q.id_theme = t.id_theme
+            GROUP BY t.id_theme, t.nom
+            ORDER BY t.nom;";
 
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                DataTable dt = new DataTable();
+                if (conn.State != ConnectionState.Open)
+                    conn.Open();
+
+                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
                 {
-                    using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
-                    {
-
-                        DataTable dt = new DataTable();
-                        adapter.Fill(dt);
-                        dataGridView1.DataSource = dt;
-                        dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-
-                        dataGridView1.Show();
-                    }
+                    adapter.Fill(dt);
                 }
+
+                dataGridView1.DataSource = dt;
+                dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                dataGridView1.Show();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erreur lors de l'affichage des thèmes : " + ex.Message);
+                MessageBox.Show("Erreur lors du chargement des thèmes : " + ex.Message);
             }
-
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
         }
+        private void ChargerThemesSansQuestionnaire()
+        {
+            try
+            {
+                string sql = @"
+            SELECT  nom AS Theme
+            FROM theme
+            WHERE id_theme NOT IN (SELECT id_theme FROM questionnaire)
+            ORDER BY nom;";
+
+                DataTable dt = new DataTable();
+                if (conn.State != ConnectionState.Open)
+                    conn.Open();
+
+                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
+                {
+                    adapter.Fill(dt);
+                }
+
+                dataGridView1.DataSource = dt;
+                dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                dataGridView1.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erreur lors du chargement des thèmes sans questionnaire : " + ex.Message);
+            }
+         
+        }
+
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -76,7 +178,7 @@ namespace questionnaireQuizz
 
         private void btn_afficherQuestion_Click(object sender, EventArgs e)
         {
-            string query = "SELECT * FROM question";
+            string query = "SELECT libelle,rep1,rep2,rep3,bonne_reponse,id_questionnaire FROM question";
             try
             {
                 using (MySqlCommand cmd = new MySqlCommand(query, conn))
@@ -231,7 +333,7 @@ namespace questionnaireQuizz
             txt_id.Text = id_utilisateur.ToString();
         }
 
-       
+
 
         private int GetUserIdByNom(string nom)
         {
@@ -420,7 +522,6 @@ namespace questionnaireQuizz
 
         private void btn_deconnecter_Click(object sender, EventArgs e)
         {
-            // AJOUTEZ À LA PLACE :
             int userId = this.userId;
 
             const string updateSql = @"
@@ -480,16 +581,17 @@ namespace questionnaireQuizz
         {
             this.Hide();
 
-           
+
             using (var frm = new FrmDureeConnexion())
             {
                 frm.ShowDialog();
             }
 
-            
+
             this.Show();
         }
-        private void afficherNbrConnexion(int userId) {
+        private void afficherNbrConnexion(int userId)
+        {
             try
             {
                 if (conn.State != ConnectionState.Open)
@@ -542,6 +644,30 @@ namespace questionnaireQuizz
             }
 
 
+        }
+
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void btn_afficherQuestionnaire_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+
+            //  ouvre utilisateurAdmin en modal
+            using (var form2 = new Form2())
+            {
+                form2.ShowDialog();
+            }
+
+
+            this.Show();
+        }
+
+        private void btn_filtre_Click(object sender, EventArgs e)
+        {
+            ChargerThemesSansQuestionnaire();
         }
     }
 }

@@ -34,6 +34,7 @@ namespace questionnaireQuizz
             button1.FlatAppearance.MouseDownBackColor = Color.FromArgb(0, 90, 170);     // bleu “clic”
             button1.Size = new Size(120, 30);
 
+
         }
 
         private void button1_Click(object sender, EventArgs e)

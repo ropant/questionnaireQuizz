@@ -54,6 +54,8 @@
             txt_nbrConnexion = new TextBox();
             txt_derniereConnection = new TextBox();
             label2 = new Label();
+            btn_afficherQuestionnaire = new Button();
+            btn_filtre = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView_questions).BeginInit();
             contextMenuStrip1.SuspendLayout();
@@ -141,6 +143,7 @@
             menuStrip1.Size = new Size(800, 28);
             menuStrip1.TabIndex = 4;
             menuStrip1.Text = "menuStrip1";
+            menuStrip1.ItemClicked += menuStrip1_ItemClicked;
             // 
             // voirLesUtilisateursToolStripMenuItem
             // 
@@ -260,12 +263,34 @@
             label2.TabIndex = 13;
             label2.Text = "dernière connexion";
             // 
+            // btn_afficherQuestionnaire
+            // 
+            btn_afficherQuestionnaire.Location = new Point(388, 87);
+            btn_afficherQuestionnaire.Name = "btn_afficherQuestionnaire";
+            btn_afficherQuestionnaire.Size = new Size(290, 29);
+            btn_afficherQuestionnaire.TabIndex = 14;
+            btn_afficherQuestionnaire.Text = "Questionnaire obsolète";
+            btn_afficherQuestionnaire.UseVisualStyleBackColor = true;
+            btn_afficherQuestionnaire.Click += btn_afficherQuestionnaire_Click;
+            // 
+            // btn_filtre
+            // 
+            btn_filtre.Location = new Point(140, 87);
+            btn_filtre.Name = "btn_filtre";
+            btn_filtre.Size = new Size(94, 29);
+            btn_filtre.TabIndex = 15;
+            btn_filtre.Text = "Sans questionnaire ";
+            btn_filtre.UseVisualStyleBackColor = true;
+            btn_filtre.Click += btn_filtre_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ScrollBar;
             ClientSize = new Size(800, 450);
+            Controls.Add(btn_filtre);
+            Controls.Add(btn_afficherQuestionnaire);
             Controls.Add(label2);
             Controls.Add(txt_derniereConnection);
             Controls.Add(txt_nbrConnexion);
@@ -318,5 +343,7 @@
         private TextBox txt_nbrConnexion;
         private TextBox txt_derniereConnection;
         private Label label2;
+        private Button btn_afficherQuestionnaire;
+        private Button btn_filtre;
     }
 }

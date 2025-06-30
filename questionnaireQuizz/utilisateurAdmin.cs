@@ -35,7 +35,7 @@ namespace questionnaireQuizz
         {
             const string sql =
                 @"SELECT 
-                    id_utilisateur,
+                    
                     nom_utilisateur,
                     token,
                     role,
